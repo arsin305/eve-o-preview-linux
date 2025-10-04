@@ -21,12 +21,14 @@ Live thumbnail previews for EVE Online multiboxing on Linux. Click to focus clie
 ## 🖥️ System Requirements
 
 ### Required
+
 - **Operating System**: Linux with X11 display server
 - **Python**: 3.8 or higher
 - **Display Server**: X11 (Wayland not supported - see troubleshooting)
 - **Desktop Environment**: Any (GNOME, KDE, XFCE, etc.)
 
 ### Tested Configuration
+
 This tool has been developed and tested on:
 - **Distribution**: Fedora Linux 42 (Workstation Edition)
 - **Kernel**: Linux 6.16.9-200.fc42.x86_64
