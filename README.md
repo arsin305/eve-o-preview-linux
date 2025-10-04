@@ -244,9 +244,14 @@ This tool is not affiliated with or endorsed by CCP Games
 
 This is an unofficial, community-created tool and is **not affiliated with, endorsed by, or supported by CCP Games**. EVE Online™ is a registered trademark of CCP hf.
 
+**Personal Project:**
+
+This tool was originally developed as a personal project for my own use while multiboxing EVE Online on Linux. I'm sharing it with the community in hopes that other Linux players find it useful. As this is a hobby project, updates and support are provided on a best-effort basis.
+
 **User Responsibility:**
 
 By using this tool, you acknowledge that:
+
 - You are responsible for ensuring your use complies with [CCP's EULA](https://community.eveonline.com/support/policies/eve-eula-en/) and [Third-Party Policy](https://support.eveonline.com/hc/en-us/articles/202732751-Third-Party-Applications-and-Other-Software)
 - This tool is provided "as-is" without warranty of any kind
 - The developers are not responsible for any consequences resulting from the use of this software
@@ -258,7 +263,7 @@ EVE-O Preview is a passive observation tool that creates visual thumbnails of yo
 - Modify game files or memory
 - Inject code into the game client
 - Automate any gameplay actions
-- Provide unfair advantages beyond gaming window management
+- Provide unfair advantages beyond basic window management
 - Send or intercept network traffic
 
 This tool serves the same function as the Windows version of EVE-O Preview, adapted for Linux users.
@@ -267,12 +272,6 @@ This tool serves the same function as the Windows version of EVE-O Preview, adap
 
 If you have questions about whether this tool complies with CCP's policies, please consult CCP's official support channels or review their third-party application guidelines.
 
-## 🔗 Links
-
-- [EVE Online](https://www.eveonline.com/)
-
-📸 Screenshots
-Add screenshots of your tool in action here
 🔗 Links
 
 EVE Online
