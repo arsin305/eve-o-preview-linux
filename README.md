@@ -291,3 +291,22 @@ Licensed under the **MIT License** — see [LICENSE](LICENSE).
 - Inspired by [EVE-O Preview for Windows](https://github.com/Phrynohyas/eve-o-preview)  
 - EVE Online™ is a trademark of CCP hf.  
 - This tool is not affiliated with or endorsed by CCP Games.
+
+---
+
+##🧠 Future Move to PipeWire
+
+I’m not a professional coder — just a Linux tinkerer still learning and experimenting.
+This project is a personal passion project that keeps evolving as I discover new tools and APIs.
+
+A long-term goal for Fedora 43+ is to explore PipeWire’s window capture and frame-sharing APIs as a potential enhancement.
+The goal is to:
+
+Capture frames from running EVE Online clients more efficiently
+
+Potentially bypass focus-related throttling for smoother thumbnails
+
+Add Wayland session support without depending on X11
+
+This feature will be tested first on Fedora 43 with PipeWire 1.2+ once the new API stabilizes.
+If successful, it should bring smoother performance and better Wayland compatibility — a big step forward for Linux multiboxers on modern desktops.
