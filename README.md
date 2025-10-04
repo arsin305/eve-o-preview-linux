@@ -192,12 +192,14 @@ getenforce
 sudo setenforce 0
 
 # If this fixes it, create a custom policy or disable for this script
+
 🤝 Contributing
 Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 Development Setup
 bashgit clone https://github.com/arsin305/eve-o-preview-linux.git
 cd eve-o-preview-linux
 ./eve_preview_enhanced.py
+
 📝 Known Issues
 
 Wayland: Not supported due to security restrictions. Use X11 session.
@@ -206,6 +208,7 @@ High DPI: Scaling may need manual adjustment in settings
 Multi-monitor: Thumbnails default to primary monitor
 
 🎮 Performance Notes
+
 Recommended Settings
 
 Refresh Rate: 10 FPS (good balance of smoothness and CPU usage)
@@ -228,11 +231,45 @@ Reduce opacity slightly
 
 📜 License
 This project is licensed under the MIT License - see the LICENSE file for details.
+
 🙏 Acknowledgments
 
 Inspired by the original EVE-O Preview for Windows
 EVE Online™ is a trademark of CCP hf.
 This tool is not affiliated with or endorsed by CCP Games
+
+## ⚖️ Legal & Compliance
+
+**Third-Party Tool Disclaimer:**
+
+This is an unofficial, community-created tool and is **not affiliated with, endorsed by, or supported by CCP Games**. EVE Online™ is a registered trademark of CCP hf.
+
+**User Responsibility:**
+
+By using this tool, you acknowledge that:
+- You are responsible for ensuring your use complies with [CCP's EULA](https://community.eveonline.com/support/policies/eve-eula-en/) and [Third-Party Policy](https://support.eveonline.com/hc/en-us/articles/202732751-Third-Party-Applications-and-Other-Software)
+- This tool is provided "as-is" without warranty of any kind
+- The developers are not responsible for any consequences resulting from the use of this software
+- You use this tool at your own risk
+
+**What This Tool Does:**
+
+EVE-O Preview is a passive observation tool that creates visual thumbnails of your EVE Online client windows. It does not:
+- Modify game files or memory
+- Inject code into the game client
+- Automate any gameplay actions
+- Provide unfair advantages beyond gaming window management
+- Send or intercept network traffic
+
+This tool serves the same function as the Windows version of EVE-O Preview, adapted for Linux users.
+
+**Questions or Concerns:**
+
+If you have questions about whether this tool complies with CCP's policies, please consult CCP's official support channels or review their third-party application guidelines.
+
+## 🔗 Links
+
+- [EVE Online](https://www.eveonline.com/)
 
 📸 Screenshots
 Add screenshots of your tool in action here
