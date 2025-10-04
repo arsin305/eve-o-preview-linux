@@ -71,7 +71,9 @@ python3-gi
 gir1.2-gtk-3.0
 gir1.2-wnck-3.0
 gir1.2-gdkx11-3.0
+
 📦 Installation
+
 Fedora/RHEL (Tested)
 bash# Install system dependencies
 sudo dnf install python3 gtk3 libwnck3
@@ -101,7 +103,9 @@ sudo pacman -S python gtk3 libwnck3
 wget https://raw.githubusercontent.com/arsin305/eve-o-preview-linux/main/eve_preview_enhanced.py
 chmod +x eve_preview_enhanced.py
 ./eve_preview_enhanced.py
+
 🚀 Usage
+
 Basic Usage
 
 Start your EVE Online clients (Steam or native)
@@ -117,6 +121,7 @@ Ctrl + Left Click: Minimize the client
 Mouse Hover: Zoom thumbnail (if enabled)
 
 Settings
+
 Click the settings icon in the main window to customize:
 
 Display: Thumbnail size (100-800px), opacity (0.2-1.0), active border color
@@ -125,6 +130,7 @@ Interaction: Zoom on hover (1.1x-2.0x zoom factor)
 Performance: Refresh rate (10/15/25 FPS)
 
 ⚙️ Configuration
+
 Settings are stored in: ~/.config/eve-o-preview-linux/config.json
 You can manually edit this file or use the built-in settings dialog.
 Default configuration:
@@ -141,7 +147,9 @@ json{
   "active_border_color": "#00FF00",
   "thumbnail_positions": {}
 }
+
 🐛 Troubleshooting
+
 Running on Wayland (GNOME/Fedora users)
 The script requires X11 to function. If you're running Wayland (default on modern Fedora/GNOME):
 Option 1: Use X11 session (Recommended)
@@ -272,13 +280,14 @@ This tool serves the same function as the Windows version of EVE-O Preview, adap
 
 If you have questions about whether this tool complies with CCP's policies, please consult CCP's official support channels or review their third-party application guidelines.
 
-🔗 Links
+## 🔗 Links
 
-EVE Online
-Original EVE-O Preview (Windows)
-Report Issues
+- [EVE Online](https://www.eveonline.com/)
+- [Original EVE-O Preview (Windows)](https://github.com/Phrynohyas/eve-o-preview)
+- [Report Issues](https://github.com/arsin305/eve-o-preview-linux/issues)
 
 📞 Support
+
 If you encounter issues:
 
 Check the troubleshooting section above
