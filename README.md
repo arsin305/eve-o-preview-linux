@@ -11,10 +11,6 @@ Works with both Steam and native clients on X11 — perfect for managing multipl
 
 ---
 
-## 🎥 Demo Video
-
-▶️ [Watch on Streamable](https://streamable.com/rss05k)
-
 
 ## ✨ Features
 
@@ -57,6 +53,12 @@ Developed and tested on:
 | **Behavior Settings Tab**<br>Configure always-on-top, overlays, zoom, and refresh rate. | ![Behavior Settings](screenshots/03-settings-behavior.png) |
 | **Switching Clients**<br>Click a thumbnail to instantly focus — red border shows active window. | ![Switch Focus](screenshots/04-thumbnail-switching.png) |
 | **Active Client Highlighting**<br>Example showing red border around the active client. | ![Highlight](screenshots/05-active-client-highlight.png) |
+
+---
+
+## 🎥 Demo Video
+
+▶️ [Watch on Streamable](https://streamable.com/rss05k)
 
 ---
 
