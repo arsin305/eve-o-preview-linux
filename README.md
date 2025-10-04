@@ -11,6 +11,11 @@ Works with both Steam and native clients on X11 — perfect for managing multipl
 
 ---
 
+## 🎥 Demo Video
+
+▶️ [Watch on Streamable](https://streamable.com/rss05k)
+
+
 ## ✨ Features
 
 - **Live Thumbnails:** Real-time preview of all EVE Online clients  
