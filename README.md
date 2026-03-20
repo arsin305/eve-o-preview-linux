@@ -30,6 +30,14 @@ Built from the ground up in Python/GTK3 — supports X11 and Wayland via XWaylan
 
 ---
 
+## 🎥 Demo
+
+[![Watch the demo](https://img.youtube.com/vi/WN8BS4XNsOU/maxresdefault.jpg)](https://www.youtube.com/watch?v=WN8BS4XNsOU)
+
+> 60-second walkthrough: launch, detect clients, click-to-focus, drag thumbnails, and settings.
+
+---
+
 ## 📸 Screenshots
 
 | Description | Image |
