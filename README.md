@@ -30,6 +30,11 @@ Built from the ground up in Python/GTK3 — supports X11 and Wayland via XWaylan
 
 ---
 
+## Support
+If you enjoy my work, feel free to buy me a coffee!
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/U7U31XQGE8)
+
 ## 🎥 Demo
 
 [![Watch the demo](https://img.youtube.com/vi/WN8BS4XNsOU/maxresdefault.jpg)](https://www.youtube.com/watch?v=WN8BS4XNsOU)
