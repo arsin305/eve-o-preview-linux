@@ -1,32 +1,32 @@
-# 🛰️ EVE-O Preview for Linux
+# EVE-O Preview for Linux
 
 **Live thumbnail previews for multiboxing EVE Online on Linux.**
 Click to focus clients, drag to reposition, and zoom on hover.
-Features customizable borders, character overlays, and real-time updates.
-Built from the ground up in Python/GTK3 — supports X11 and Wayland via XWayland.
+Features customizable borders, character overlays, and real time updates.
+Built from the ground up in Python/GTK3 supports X11 and Wayland via XWayland.
 
 ![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Linux-orange.svg)
 
-> Inspired by [EVE-O Preview for Windows](https://github.com/Phrynohyas/eve-o-preview) — not a port, but an independent implementation for Linux.
+> Inspired by [EVE O Preview for Windows](https://github.com/Phrynohyas/eve-o-preview) not a port, but an independent implementation for Linux.
 
 ---
 
-## ✨ Features
+## Features
 
-- **Live Thumbnails:** Real-time preview of all running EVE Online clients
-- **Click to Focus:** Left-click any thumbnail to instantly switch to that client
-- **Drag to Reposition:** Left-drag or right-drag to move thumbnails anywhere on screen
-- **Ctrl+Click to Minimize:** Quickly minimize a client without alt-tabbing
+- **Live Thumbnails:** Real time preview of all running EVE Online clients
+- **Click to Focus:** Left click any thumbnail to instantly switch to that client
+- **Drag to Reposition:** Left drag or right drag to move thumbnails anywhere on screen
+- **Ctrl+Click to Minimize:** Quickly minimize a client without alt tabbing
 - **Zoom on Hover:** Thumbnails enlarge when moused over (configurable zoom factor)
 - **Active Client Highlighting:** Configurable colored border shows which client has focus
 - **Character Name Overlay:** Displays character name on each thumbnail
 - **Hide Active Client:** Optionally hide the thumbnail for the currently focused client
 - **Adjustable FPS:** 10, 15, 25, or 30 FPS to balance smoothness vs. CPU usage
 - **Persistent Positions:** Thumbnail positions saved and restored between sessions
-- **Wayland Support:** Auto-detects Wayland and uses XWayland backend; optional gtk-layer-shell for proper overlay support above fullscreen EVE windows
-- **Multi-Client Stability:** GLib priority scheduling keeps UI responsive with 2+ EVE clients
+- **Wayland Support:** Auto detects Wayland and uses XWayland backend; optional gtk-layer-shell for proper overlay support above fullscreen EVE windows
+- **MultiClient Stability:** GLib priority scheduling keeps UI responsive with 2+ EVE clients
 
 ---
 
@@ -35,7 +35,7 @@ If you enjoy my work, feel free to buy me a coffee!
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/U7U31XQGE8)
 
-## 🎥 Demo
+## Demo
 
 [![Watch the demo](https://img.youtube.com/vi/WN8BS4XNsOU/maxresdefault.jpg)](https://www.youtube.com/watch?v=WN8BS4XNsOU)
 
@@ -43,11 +43,11 @@ If you enjoy my work, feel free to buy me a coffee!
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
 | Description | Image |
 |---|---|
-| **Dual Client — Active Border** — Colored border highlights which client has focus. | ![Active border](screenshots/dual-client-active-screen-border.png) |
+| **Dual Client Active Border** Colored border highlights which client has focus. | ![Active border](screenshots/dual-client-active-screen-border.png) |
 | **Dual Client — Management Window** — Lists detected EVE clients with live thumbnails. | ![Dual client](screenshots/dual-client.png) |
 | **Single Client** — Monitoring one EVE client with thumbnail overlay. | ![Single client](screenshots/single-client.png) |
 | **Management Window** — Shows session type (Wayland/X11) and backend info. | ![Client monitor](screenshots/client-monitor.png) |
@@ -56,7 +56,7 @@ If you enjoy my work, feel free to buy me a coffee!
 
 ---
 
-## 🖥️ System Requirements
+## System Requirements
 
 ### Required
 
@@ -74,12 +74,12 @@ If you enjoy my work, feel free to buy me a coffee!
 
 ### Tested On
 
-- Fedora 43 — KDE Plasma 6 (Wayland) with XWayland
-- EVE Online via Steam (Proton/Wine → XWayland)
+- Fedora 43 KDE Plasma 6 (Wayland) with XWayland
+- EVE Online via Steam (Proton/Wine XWayland)
 
 ---
 
-## 📦 Installation
+## Installation
 
 ### Fedora / RHEL
 
@@ -130,7 +130,7 @@ cd eve-o-preview-linux
 
 ---
 
-## 🚀 Usage
+## Usage
 
 1. Start your EVE Online clients (Steam, Lutris, or standalone Wine)
 2. Run the script:
@@ -165,7 +165,7 @@ EVE_PREVIEW_IPC_DEBUG=1 python3 eve_o_preview_linux.py
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 Settings are stored at `~/.config/eve-o-preview-linux/config.json` and can be edited through the Settings dialog in the management window (gear icon in the header bar).
 
@@ -201,7 +201,7 @@ Example `config.json`:
 
 ---
 
-## 🔧 How It Works
+## How It Works
 
 EVE Online on Linux runs through Wine/Proton, which creates XWayland windows. The script uses `libwnck` to discover EVE client windows by matching process command lines against `exefile.exe`, `eve.exe`, and `steam_app_8500`. It captures window content via `GdkX11.gdk_pixbuf_get_from_window()` and renders scaled thumbnails as always-on-top GTK windows.
 
@@ -219,11 +219,11 @@ EVE Online on Linux runs through Wine/Proton, which creates XWayland windows. Th
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Wayland Sessions
 
-The app works on Wayland automatically — it forces `GDK_BACKEND=x11` for the main process and uses XWayland for window capture. No manual session switching required.
+The app works on Wayland automatically it forces `GDK_BACKEND=x11` for the main process and uses XWayland for window capture. No manual session switching required.
 
 For best results on Wayland, install **gtk-layer-shell** (see Installation). Without it, thumbnails may appear behind fullscreen EVE clients.
 
@@ -250,7 +250,7 @@ echo $XDG_SESSION_TYPE  # "wayland" or "x11" — both work
 
 ---
 
-## 🎮 Performance Tips
+## Performance Tips
 
 | Clients | Recommended FPS | Thumbnail Size | Notes |
 |---|---|---|---|
@@ -260,14 +260,14 @@ echo $XDG_SESSION_TYPE  # "wayland" or "x11" — both work
 
 ---
 
-## ⚖️ Legal & Compliance
+## Legal & Compliance
 
 **Third-Party Tool Disclaimer:**
 This is an unofficial, community-created tool and is **not affiliated with, endorsed by, or supported by CCP Games**.
 EVE Online™ is a registered trademark of CCP hf.
 
 **What This Tool Does:**
-EVE-O Preview for Linux is a passive observation tool that creates visual thumbnails of EVE Online client windows. It does *not*:
+EVE O Preview for Linux is a passive observation tool that creates visual thumbnails of EVE Online client windows. It does *not*:
 - Modify game files or memory
 - Inject code into the client
 - Automate gameplay
@@ -275,13 +275,13 @@ EVE-O Preview for Linux is a passive observation tool that creates visual thumbn
 
 **User Responsibility:**
 By using this tool, you acknowledge that:
-- You are responsible for ensuring compliance with [CCP's EULA](https://community.eveonline.com/support/policies/eve-eula-en/) and [Third-Party Policy](https://support.eveonline.com/hc/en-us/articles/202732751-Third-Party-Applications-and-Other-Software)
+- You are responsible for ensuring compliance with [CCP's EULA](https://community.eveonline.com/support/policies/eve-eula-en/) and [Third Party Policy](https://support.eveonline.com/hc/en-us/articles/202732751-Third-Party-Applications-and-Other-Software)
 - Provided "as-is" without warranty
 - Developer(s) are not liable for any consequences from use
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Pull requests welcome! For major changes, please [open an issue](https://github.com/arsin305/eve-o-preview-linux/issues) first.
 
@@ -293,7 +293,7 @@ python3 eve_o_preview_linux.py
 
 ---
 
-## 🔗 Links
+## Links
 
 - [EVE Online](https://www.eveonline.com/)
 - [EVE-O Preview for Windows](https://github.com/Phrynohyas/eve-o-preview)
@@ -301,7 +301,7 @@ python3 eve_o_preview_linux.py
 
 ---
 
-## 📞 Support
+## Support
 
 If you encounter issues:
 1. Review the troubleshooting section above
@@ -314,6 +314,6 @@ If you encounter issues:
 
 ---
 
-## 📜 License
+## License
 
-Licensed under the **MIT License** — see [LICENSE](LICENSE).
+Licensed under the **MIT License** see [LICENSE](LICENSE).
