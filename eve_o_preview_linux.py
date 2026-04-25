@@ -1452,6 +1452,7 @@ class EVEOPreview(Gtk.Window):
         super().__init__()
         self.config = Config()
         self.thumbnails = {}
+        self.client_rows = {}        # xid → Gtk.ListBoxRow in the management window
         self._pending_watches = {}   # xid → handler_id for name-changed watchers
         self.screen = Wnck.Screen.get_default()
         self.screen.force_update()
@@ -1551,6 +1552,7 @@ class EVEOPreview(Gtk.Window):
         GLib.timeout_add(1000, self._periodic_active_poll)
 
         self._scan_existing()
+        GLib.timeout_add(2000, self._periodic_client_scan)
 
     def _apply_styles(self):
         css_provider = Gtk.CssProvider()
@@ -1574,17 +1576,18 @@ class EVEOPreview(Gtk.Window):
             self._check_and_add(w)
         self._update_status()
 
-        # Apply active-window state immediately after startup discovery.
-        # Without this, "Hide active client thumbnail" can leave the already
-        # focused EVE client's preview visible until the first window switch or
-        # periodic poll.  KDE/Wayland can also briefly report no active X11
-        # window during startup, so schedule the existing short retry path too.
+        # Apply active-client state immediately after startup discovery.
+        # Without this, "Hide active client thumbnail" may not take effect
+        # until the first focus/window switch signal is received.
         self.screen.force_update()
         active = self.screen.get_active_window()
         if active:
             active_xid = active.get_xid()
             self._apply_active_borders(active_xid)
             self._last_polled_active_xid = active_xid
+
+        # KDE/Wayland startup timing can briefly report no or stale active
+        # XWayland window. Reuse the existing short retry path as a safety net.
         self._poll_retries = [0]
         GLib.timeout_add(150, self._poll_active_border)
 
@@ -1653,6 +1656,7 @@ class EVEOPreview(Gtk.Window):
         row.add(row_box)
         self.client_list.add(row)
         row.show_all()
+        self.client_rows[xid] = row
 
         def _refresh_row_label(*_args):
             raw = window.get_name() or "EVE"
@@ -1667,7 +1671,13 @@ class EVEOPreview(Gtk.Window):
 
     def _remove_thumb(self, xid):
         t = self.thumbnails.pop(xid, None)
-        if t: t.destroy()
+        if t:
+            t.destroy()
+
+        row = self.client_rows.pop(xid, None)
+        if row:
+            row.destroy()
+
         self._update_status()
 
     def _on_window_opened(self, _screen, window):
@@ -1703,6 +1713,33 @@ class EVEOPreview(Gtk.Window):
         xid = window.get_xid()
         self._pending_watches.pop(xid, None)
         self._remove_thumb(xid)
+
+    def _periodic_client_scan(self):
+        """Safety-net scan for missed Wnck open/close signals.
+
+        KDE Plasma / XWayland / Wine can occasionally miss a window-opened or
+        window-closed transition while EVE is changing from launcher/loading
+        windows into the final character client window. This keeps the client
+        list and thumbnail set in sync without requiring an app restart.
+        """
+        try:
+            self.screen.force_update()
+            windows = list(self.screen.get_windows())
+            live_xids = {w.get_xid() for w in windows}
+
+            for w in windows:
+                self._check_and_add(w)
+
+            for xid in list(self.thumbnails.keys()):
+                if xid not in live_xids:
+                    self._remove_thumb(xid)
+
+            active = self.screen.get_active_window()
+            if active:
+                self._apply_active_borders(active.get_xid())
+        except Exception as e:
+            print(f"[scan] periodic client scan error: {e}")
+        return True
 
     def _on_active_changed(self, _screen, _prev):
         active = self.screen.get_active_window()
@@ -2262,11 +2299,9 @@ def main():
             print("[eve-o-preview] ERROR: Wnck failed to get a default screen. Ensure X11/XWayland is available.")
         return
     app = EVEOPreview()
-    # Closing the management window minimises it to the taskbar rather than
-    # quitting, so thumbnail overlays keep running.  Use Ctrl+C to fully exit.
-    # Minimise (iconify) is preferred over hide() because a hidden window
-    # disappears from the taskbar completely, making it hard to bring back.
-    app.connect("delete-event", lambda w, e: w.iconify() or True)
+    # Closing the management window exits the application. Future optional
+    # close-to-tray behavior should be handled by a tray setting instead of
+    # overriding the close button unconditionally.
     app.connect("destroy", Gtk.main_quit)
 
     # Re-assert keep-above whenever the management window is (re-)mapped —
