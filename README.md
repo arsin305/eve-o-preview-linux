@@ -70,9 +70,9 @@ If you enjoy my work, feel free to buy me a coffee!
 
 ### Optional
 
-- **gtk-layer-shell** — enables overlay thumbnails above fullscreen EVE clients on Wayland compositors
-- **wmctrl** — used as a fallback focus activation strategy
-- **xdotool** — additional fallback for XWayland window activation
+- **gtk-layer-shell** enables overlay thumbnails above fullscreen EVE clients on Wayland compositors
+- **wmctrl** used as a fallback focus activation strategy
+- **xdotool** additional fallback for XWayland window activation
 
 ### Tested On
 
@@ -88,10 +88,10 @@ If you enjoy my work, feel free to buy me a coffee!
 ```bash
 sudo dnf install python3 python3-gobject gtk3 libwnck3
 
-# Optional — improves click-to-focus reliability:
+# Optional improves click-to-focus reliability:
 sudo dnf install wmctrl xdotool
 
-# Optional — Wayland overlay support (recommended on KDE Plasma / GNOME Wayland):
+# Optional Wayland overlay support (recommended on KDE Plasma / GNOME Wayland):
 sudo dnf install gtk-layer-shell
 ```
 
@@ -100,10 +100,10 @@ sudo dnf install gtk-layer-shell
 ```bash
 sudo apt install python3 python3-gi gir1.2-gtk-3.0 gir1.2-wnck-3.0
 
-# Optional — improves click-to-focus reliability:
+# Optional improves click-to-focus reliability:
 sudo apt install wmctrl xdotool
 
-# Optional — Wayland overlay support:
+# Optional Wayland overlay support:
 sudo apt install gir1.2-gtk-layer-shell-0
 ```
 
@@ -140,7 +140,7 @@ cd eve-o-preview-linux
    python3 eve_o_preview_linux.py
    ```
 
-The management window will appear showing session type (X11/Wayland) and backend info. EVE clients are detected automatically — thumbnails appear once a character is loaded and the window title resolves to `EVE - CharacterName`.
+The management window will appear showing session type (X11/Wayland) and backend info. EVE clients are detected automatically thumbnails appear once a character is loaded and the window title resolves to `EVE - CharacterName`.
 
 ### Controls
 
@@ -207,7 +207,7 @@ Example `config.json`:
 
 EVE Online on Linux runs through Wine/Proton, which creates XWayland windows. The script uses `libwnck` to discover EVE client windows by matching process command lines against `exefile.exe`, `eve.exe`, and `steam_app_8500`. It captures window content via `GdkX11.gdk_pixbuf_get_from_window()` and renders scaled thumbnails as always-on-top GTK windows.
 
-**On Wayland with gtk-layer-shell installed**, each thumbnail is rendered by a separate subprocess running with `GDK_BACKEND=wayland`. These subprocesses create layer-shell OVERLAY surfaces — guaranteed by the Wayland compositor to appear above all other windows, including fullscreen EVE clients. The main process captures frames via GdkX11 and sends them to each subprocess over stdin/stdout pipes.
+**On Wayland with gtk-layer-shell installed**, each thumbnail is rendered by a separate subprocess running with `GDK_BACKEND=wayland`. These subprocesses create layer-shell OVERLAY surfaces guaranteed by the Wayland compositor to appear above all other windows, including fullscreen EVE clients. The main process captures frames via GdkX11 and sends them to each subprocess over stdin/stdout pipes.
 
 **On X11**, thumbnails are regular GTK windows with `keep-above` hints.
 
@@ -215,9 +215,9 @@ EVE Online on Linux runs through Wine/Proton, which creates XWayland windows. Th
 
 **Multi-client stability** is achieved through GLib source priorities:
 
-- Capture timers run at `PRIORITY_LOW` (300) — frame updates yield to everything else
-- IPC callbacks (click, hover, drag) run at `PRIORITY_HIGH` (-100) — always processed first
-- GTK input events run at `PRIORITY_DEFAULT` (0) — management window stays responsive
+- Capture timers run at `PRIORITY_LOW` (300) frame updates yield to everything else
+- IPC callbacks (click, hover, drag) run at `PRIORITY_HIGH` (-100) always processed first
+- GTK input events run at `PRIORITY_DEFAULT` (0)  management window stays responsive
 
 ---
 
@@ -230,21 +230,21 @@ The app works on Wayland automatically it forces `GDK_BACKEND=x11` for the main 
 For best results on Wayland, install **gtk-layer-shell** (see Installation). Without it, thumbnails may appear behind fullscreen EVE clients.
 
 ```bash
-echo $XDG_SESSION_TYPE  # "wayland" or "x11" — both work
+echo $XDG_SESSION_TYPE  # "wayland" or "x11"  both work
 ```
 
 ### Common Issues
 
 **Thumbnails not appearing**
 - Ensure EVE clients are running: `ps aux | grep exefile`
-- Clients need to be past the login screen — detection happens once the window title resolves to `EVE - CharacterName`
+- Clients need to be past the login screen  detection happens once the window title resolves to `EVE - CharacterName`
 
 **Click-to-focus not working**
 - Install `wmctrl` and `xdotool` for additional activation strategies
 - Check terminal output for `[click]` log messages showing which strategy succeeds
 
 **Thumbnails behind fullscreen EVE on Wayland**
-- Install `gtk-layer-shell` — this is required for thumbnails to render above fullscreen XWayland surfaces on Wayland compositors
+- Install `gtk-layer-shell`  this is required for thumbnails to render above fullscreen XWayland surfaces on Wayland compositors
 
 **Black thumbnails**
 - Ensure Mesa/GPU drivers are up to date
