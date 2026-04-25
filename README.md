@@ -48,11 +48,11 @@ If you enjoy my work, feel free to buy me a coffee!
 | Description | Image |
 |---|---|
 | **Dual Client Active Border** Colored border highlights which client has focus. | ![Active border](screenshots/dual-client-active-screen-border.png) |
-| **Dual Client — Management Window** — Lists detected EVE clients with live thumbnails. | ![Dual client](screenshots/dual-client.png) |
-| **Single Client** — Monitoring one EVE client with thumbnail overlay. | ![Single client](screenshots/single-client.png) |
-| **Management Window** — Shows session type (Wayland/X11) and backend info. | ![Client monitor](screenshots/client-monitor.png) |
-| **Settings — Display** — Adjust thumbnail size, opacity, and active border color. | ![Display settings](screenshots/settings.png) |
-| **Settings — Behavior** — Configure always-on-top, overlays, zoom, and refresh rate. | ![Behavior settings](screenshots/behavior.png) |
+| **Dual Client Management Window** Lists detected EVE clients with live thumbnails. | ![Dual client](screenshots/dual-client.png) |
+| **Single Client** Monitoring one EVE client with thumbnail overlay. | ![Single client](screenshots/single-client.png) |
+| **Management Window** Shows session type (Wayland/X11) and backend info. | ![Client monitor](screenshots/client-monitor.png) |
+| **Settings — Display** Adjust thumbnail size, opacity, and active border color. | ![Display settings](screenshots/settings.png) |
+| **Settings — Behavior** Configure always-on-top, overlays, zoom, and refresh rate. | ![Behavior settings](screenshots/behavior.png) |
 
 ---
 
