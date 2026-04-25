@@ -1574,6 +1574,20 @@ class EVEOPreview(Gtk.Window):
             self._check_and_add(w)
         self._update_status()
 
+        # Apply active-window state immediately after startup discovery.
+        # Without this, "Hide active client thumbnail" can leave the already
+        # focused EVE client's preview visible until the first window switch or
+        # periodic poll.  KDE/Wayland can also briefly report no active X11
+        # window during startup, so schedule the existing short retry path too.
+        self.screen.force_update()
+        active = self.screen.get_active_window()
+        if active:
+            active_xid = active.get_xid()
+            self._apply_active_borders(active_xid)
+            self._last_polled_active_xid = active_xid
+        self._poll_retries = [0]
+        GLib.timeout_add(150, self._poll_active_border)
+
     def _check_and_add(self, window):
         if is_eve_window_steamaware(window):
             xid = window.get_xid()
