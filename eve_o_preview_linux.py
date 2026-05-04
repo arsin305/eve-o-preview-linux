@@ -715,7 +715,11 @@ def _looks_like_launcher(name, pid=0):
     low = (name or "").lower()
     if any(k in low for k in ("launcher", "eve launcher")):
         return True
-    if pid and _proc_cmdline_contains(pid, ["evelauncher", "launcher.exe", "qtwebengine", "qml"]):
+    # NOTE: "qml" was removed from this list. It is only 3 characters and
+    # produced false positives on real EVE client cmdlines whose ssoToken
+    # values, paths, or other arguments happened to contain that substring.
+    # "qtwebengine" alone is a specific enough launcher signature.
+    if pid and _proc_cmdline_contains(pid, ["evelauncher", "launcher.exe", "qtwebengine"]):
         return True
     return False
 
@@ -741,13 +745,16 @@ def is_eve_window_steamaware(wnck_window):
         return False
     if not name:
         return False
+    # Stable/fully resolved EVE client title — accept BEFORE any heuristic
+    # rejection. "EVE - <CharacterName>" is unambiguous; the launcher never
+    # uses this title, so this short-circuit is safe and protects real
+    # clients from false-positive cmdline matches in _looks_like_launcher.
+    if low.startswith("eve - ") and "launcher" not in low:
+        return True
     if _looks_like_launcher(name, pid):
         return False
     if low in ("untitled window", "wine desktop"):
         return False
-    # Stable/fully resolved EVE client title
-    if low.startswith("eve - ") and "launcher" not in low:
-        return True
     # Do NOT add generic EVE windows yet. They frequently represent transient
     # startup/helper surfaces and are the source of the multi-client hang.
     # Let the pending name-changed watcher add them only after the title
