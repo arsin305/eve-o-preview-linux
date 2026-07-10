@@ -39,9 +39,9 @@ If you enjoy my work, feel free to buy me a coffee!
 
 ## Demo
 
-[![Watch the demo](https://img.youtube.com/vi/WN8BS4XNsOU/maxresdefault.jpg)](https://www.youtube.com/watch?v=WN8BS4XNsOU)
+[![Watch the demo](https://img.youtube.com/vi/tEMvtQaRbco/maxresdefault.jpg)](https://www.youtube.com/watch?v=tEMvtQaRbco)
 
-> 60-second walkthrough: launch, detect clients, click-to-focus, drag thumbnails, and settings. *(Recorded before the PodSight rename — same app, old name on screen.)*
+> Walkthrough: launch, detect clients, click-to-focus, drag thumbnails, system tray, and settings.
 
 ---
 
@@ -128,6 +128,10 @@ cd podsight
 The installer is per-user (no sudo): it copies the app to `~/.local/share/podsight/`, adds a **PodSight** entry with icon to your application menu, and creates a `podsight` command. It checks required dependencies and prints the `dnf` command for any optional ones. Remove everything with `./uninstall.sh`.
 
 Prefer running straight from the repo? That still works:
+
+```bash
+python3 podsight.py
+```
 
 ---
 
