@@ -13,6 +13,7 @@ from podsight_pkg.app import EVEOPreview
 from podsight_pkg.stats import STATS
 from podsight_pkg.platform import _WAYLAND_SESSION
 from podsight_pkg import tray
+from podsight_pkg import hotkeys
 from gi.repository import Gtk, Gdk, Wnck, GLib
 
 
@@ -21,6 +22,7 @@ def main():
     # and every window advertises the themed icon, so KDE's taskbar and
     # alt-tab show our icon instead of a generic one.
     GLib.set_prgname("podsight")
+    Gdk.set_program_class("podsight")
     Gtk.Window.set_default_icon_name("podsight")
 
     screen = Wnck.Screen.get_default()
@@ -79,6 +81,12 @@ def main():
             pass
         return True  # keep repeating
     GLib.timeout_add(4000, _keep_app_above)
+
+    hk = None
+    if app.config.settings.get("hotkeys_enabled", True):
+        hk = hotkeys.HotkeyManager(app)
+        # Release the key grabs when the app window is destroyed.
+        app.connect("destroy", lambda *_: hk.shutdown())
 
     if app_tray and app.config.settings.get("start_in_tray", False):
         print("[podsight] Starting hidden in tray.")

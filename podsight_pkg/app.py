@@ -110,6 +110,20 @@ class EVEOPreview(Gtk.Window):
         settings_btn.connect("clicked", self._show_settings)
         headerbar.pack_end(settings_btn)
 
+        # Layouts menu: save/apply/delete named thumbnail arrangements
+        layouts_btn = Gtk.MenuButton()
+        layouts_btn.set_image(Gtk.Image.new_from_icon_name(
+            "view-grid-symbolic", Gtk.IconSize.BUTTON))
+        layouts_btn.set_tooltip_text("Layouts")
+        self._layouts_popover = Gtk.Popover()
+        layouts_btn.set_popover(self._layouts_popover)
+        self._layouts_popover.connect("show", lambda *_: self._rebuild_layouts_popover())
+        headerbar.pack_end(layouts_btn)
+
+        # Thumbnails query sibling rectangles through the shared config object
+        # for edge snapping (avoids giving every thumbnail an app reference).
+        self.config.snap_rects_provider = self._get_snap_rects
+
         # Main container
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         self.add(vbox)
@@ -181,6 +195,8 @@ class EVEOPreview(Gtk.Window):
         # active-window-changed after alt-tab between XWayland windows.
         self._last_polled_active_xid = None
         GLib.timeout_add(1000, self._periodic_active_poll)
+        self._last_order = ()
+        GLib.timeout_add(1000, self._poll_thumbnail_order)
 
         self._scan_existing()
         GLib.timeout_add(2000, self._periodic_client_scan)
@@ -283,11 +299,19 @@ class EVEOPreview(Gtk.Window):
         label.set_halign(Gtk.Align.START)
         label.set_ellipsize(3)  # Ellipsize at end
         row_box.pack_start(label, True, True, 0)
+
+        # Hotkey badge, filled in by _refresh_hotkey_labels()
+        hk = Gtk.Label()
+        hk.get_style_context().add_class("dim-label")
+        hk.set_halign(Gtk.Align.END)
+        row_box.pack_end(hk, False, False, 0)
+        row._hotkey_label = hk
         
         row.add(row_box)
         self.client_list.add(row)
         row.show_all()
         self.client_rows[xid] = row
+        self._refresh_hotkey_labels()
 
         def _refresh_row_label(*_args):
             raw = window.get_name() or "EVE"
@@ -300,6 +324,124 @@ class EVEOPreview(Gtk.Window):
 
         self._update_status()
 
+    def _get_snap_rects(self, exclude=None):
+        """Rectangles (x, y, w, h) of all thumbnails except `exclude` —
+        the magnet targets for edge snapping."""
+        rects = []
+        for t in self.thumbnails.values():
+            if t is exclude:
+                continue
+            x, y = t.get_screen_pos()
+            rects.append((x, y, t._target_w, t._target_h))
+        return rects
+
+    # -- layouts --------------------------------------------------------------
+    def _rebuild_layouts_popover(self):
+        for child in self._layouts_popover.get_children():
+            self._layouts_popover.remove(child)
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        box.set_margin_top(10); box.set_margin_bottom(10)
+        box.set_margin_start(10); box.set_margin_end(10)
+
+        layouts = self.config.settings.get("layouts", {})
+        if layouts:
+            for name in sorted(layouts):
+                row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+                apply_btn = Gtk.Button(label=name)
+                apply_btn.set_hexpand(True)
+                apply_btn.connect("clicked", self._on_apply_layout, name)
+                row.pack_start(apply_btn, True, True, 0)
+                del_btn = Gtk.Button.new_from_icon_name(
+                    "edit-delete-symbolic", Gtk.IconSize.BUTTON)
+                del_btn.set_tooltip_text(f"Delete layout '{name}'")
+                del_btn.connect("clicked", self._on_delete_layout, name)
+                row.pack_start(del_btn, False, False, 0)
+                box.pack_start(row, False, False, 0)
+            box.pack_start(Gtk.Separator(), False, False, 4)
+        else:
+            lbl = Gtk.Label(label="No saved layouts yet")
+            lbl.get_style_context().add_class("dim-label")
+            box.pack_start(lbl, False, False, 0)
+            box.pack_start(Gtk.Separator(), False, False, 4)
+
+        save_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        entry = Gtk.Entry()
+        entry.set_placeholder_text("Layout name…")
+        save_btn = Gtk.Button(label="Save current")
+        save_btn.connect("clicked", self._on_save_layout, entry)
+        entry.connect("activate", lambda e: save_btn.clicked())
+        save_row.pack_start(entry, True, True, 0)
+        save_row.pack_start(save_btn, False, False, 0)
+        box.pack_start(save_row, False, False, 0)
+        box.show_all()
+        self._layouts_popover.add(box)
+
+    def _on_save_layout(self, _btn, entry):
+        name = entry.get_text().strip()
+        if not name or not self.thumbnails:
+            return
+        positions = [list(self.thumbnails[xid].get_screen_pos())
+                     for xid in self._ordered_xids()]
+        self.config.settings.setdefault("layouts", {})[name] = positions
+        self.config.save()
+        print(f"[layout] saved '{name}' with {len(positions)} slots", flush=True)
+        self._rebuild_layouts_popover()
+
+    def _on_apply_layout(self, _btn, name):
+        positions = self.config.settings.get("layouts", {}).get(name, [])
+        ordered = self._ordered_xids()
+        for i, xid in enumerate(ordered):
+            if i < len(positions):
+                thumb = self.thumbnails[xid]
+                if thumb.pinned:
+                    continue   # pinned thumbnails hold their ground
+                thumb.move_to(*positions[i])
+        print(f"[layout] applied '{name}'", flush=True)
+        self._layouts_popover.popdown()
+
+    def _on_delete_layout(self, _btn, name):
+        self.config.settings.get("layouts", {}).pop(name, None)
+        self.config.save()
+        self._rebuild_layouts_popover()
+
+    def _ordered_xids(self):
+        """Client XIDs in on-screen order: left-to-right, ties top-to-bottom.
+        This is the single source of truth for hotkey numbering AND arrow
+        cycling, so what you see is what Ctrl+Alt navigates."""
+        return sorted(self.thumbnails,
+                      key=lambda xid: self.thumbnails[xid].get_screen_pos())
+
+    def _poll_thumbnail_order(self):
+        """Renumber hotkey badges when thumbnails get dragged into a new
+        left-to-right arrangement. Comparing a small tuple once a second
+        is effectively free."""
+        snapshot = tuple((xid,) + tuple(self.thumbnails[xid].get_screen_pos())
+                         for xid in self._ordered_xids())
+        if snapshot != self._last_order:
+            old_ids = tuple(e[0] for e in self._last_order)
+            self._last_order = snapshot
+            if tuple(e[0] for e in snapshot) != old_ids:
+                self._refresh_hotkey_labels()
+            # Any position change moves the edge-snap magnet targets:
+            # refresh every helper's sibling rectangles.
+            if self.config.settings.get("edge_snap", False):
+                for t in self.thumbnails.values():
+                    t.push_sibling_rects(self._get_snap_rects(exclude=t))
+        return True
+
+    def _refresh_hotkey_labels(self):
+        """Keep hotkey badges in sync with focus_client_by_index ordering.
+        Indices shift when clients open/close, so this runs on every add
+        and remove. Position N shows Ctrl+Alt+N+1 for the first nine."""
+        enabled = self.config.settings.get("hotkeys_enabled", True)
+        for i, xid in enumerate(self._ordered_xids()):
+            text = f"Ctrl+Alt+{i + 1}" if (enabled and i < 9) else ""
+            row = self.client_rows.get(xid)
+            if row is not None and getattr(row, "_hotkey_label", None):
+                row._hotkey_label.set_text(text)
+                row._hotkey_label.show()
+            self.thumbnails[xid].set_hotkey_label(text)
+
     def _remove_thumb(self, xid):
         t = self.thumbnails.pop(xid, None)
         if t:
@@ -311,6 +453,7 @@ class EVEOPreview(Gtk.Window):
 
         self._update_status()
 
+        self._refresh_hotkey_labels()
     def _on_window_opened(self, _screen, window):
         if not self._check_and_add(window):
             # Only watch windows that might be EVE (by PID) — not every
@@ -462,6 +605,29 @@ class EVEOPreview(Gtk.Window):
                 pass
         return False   # don't repeat
 
+    # -- hotkey targets ------------------------------------------------------
+    def focus_client_by_offset(self, step):
+        """Cycle focus to the next/previous EVE client (hotkey action)."""
+        xids = self._ordered_xids()
+        if not xids:
+            return
+        cur = self._last_polled_active_xid
+        if cur in xids:
+            target = xids[(xids.index(cur) + step) % len(xids)]
+        else:
+            # Not currently in an EVE client: 'next' goes to the first,
+            # 'previous' to the last, matching the management-window order.
+            target = xids[0] if step > 0 else xids[-1]
+        print(f"[hotkey] cycle {step:+d} -> 0x{target:x}", flush=True)
+        self.thumbnails[target].activate_client()
+
+    def focus_client_by_index(self, idx):
+        """Focus the Nth EVE client, 0-based (hotkey action)."""
+        xids = self._ordered_xids()
+        if 0 <= idx < len(xids):
+            print(f"[hotkey] direct {idx + 1} -> 0x{xids[idx]:x}", flush=True)
+            self.thumbnails[xids[idx]].activate_client()
+
     def _activate_window(self, window):
         try:
             if window.is_minimized():
@@ -479,6 +645,7 @@ class EVEOPreview(Gtk.Window):
                                    self.config.settings["thumbnail_height"])
                 t.resize(*t.original_size)
                 t._target_w, t._target_h = t.original_size
+                t.apply_snap_settings()
                 if not t._use_ls:
                     try:
                         t.set_opacity(self.config.settings.get("opacity", 0.95))

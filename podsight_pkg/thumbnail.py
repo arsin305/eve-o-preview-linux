@@ -10,6 +10,124 @@ from .stats import STATS, _Stats
 from gi.repository import Gtk, Gdk, GdkPixbuf, Wnck, GLib, GdkX11
 
 class ThumbnailWindow(Gtk.Window):
+    def toggle_pin(self):
+        """Middle-click handler: lock/unlock this thumbnail against drags."""
+        self.pinned = not self.pinned
+        name = self.wnck_window.get_name() or ""
+        pins = self.config.settings.setdefault("thumbnail_pins", {})
+        if self.pinned:
+            pins[name] = True
+        else:
+            pins.pop(name, None)
+        self.config.save()
+        if self._use_ls and self._ls:
+            self._ls.set_pinned(self.pinned)
+        else:
+            self.pin_label.show() if self.pinned else self.pin_label.hide()
+        print(f"[pin] '{name}' {'pinned' if self.pinned else 'unpinned'}", flush=True)
+
+    def apply_snap_settings(self):
+        """Push the current snapping config to the layer-shell helper."""
+        if self._use_ls and self._ls:
+            grid = (self.config.settings.get("grid_size", 32)
+                    if self.config.settings.get("snap_to_grid", False) else 0)
+            edge = self.config.settings.get("edge_snap", False)
+            self._ls.set_snap(grid, edge)
+            if edge:
+                provider = getattr(self.config, "snap_rects_provider", None)
+                if provider:
+                    self._ls.set_rects(provider(exclude=self))
+
+    def push_sibling_rects(self, rects):
+        """Refresh the helper's magnet targets (edge snapping)."""
+        if self._use_ls and self._ls:
+            self._ls.set_rects(rects)
+
+    def _snap_position(self, x, y):
+        """Grid + edge snapping for a proposed position. Returns (x, y)."""
+        cfg = self.config.settings
+        if cfg.get("snap_to_grid", False):
+            g = max(1, int(cfg.get("grid_size", 32)))
+            x = int(round(x / g)) * g
+            y = int(round(y / g)) * g
+        if cfg.get("edge_snap", False):
+            provider = getattr(self.config, "snap_rects_provider", None)
+            if provider:
+                dist = 12
+                w, h = self._target_w, self._target_h
+                for (ox, oy, ow, oh) in provider(exclude=self):
+                    # horizontal flush: my left to their right / my right to their left
+                    if abs(x - (ox + ow)) <= dist and not (y + h < oy or y > oy + oh):
+                        x = ox + ow
+                    elif abs((x + w) - ox) <= dist and not (y + h < oy or y > oy + oh):
+                        x = ox - w
+                    # vertical flush
+                    if abs(y - (oy + oh)) <= dist and not (x + w < ox or x > ox + ow):
+                        y = oy + oh
+                    elif abs((y + h) - oy) <= dist and not (x + w < ox or x > ox + ow):
+                        y = oy - h
+                    # align edges when side-by-side
+                    if abs(y - oy) <= dist and (x == ox + ow or x + w == ox):
+                        y = oy
+                    if abs(x - ox) <= dist and (y == oy + oh or y + h == oy):
+                        x = ox
+        return max(0, int(x)), max(0, int(y))
+
+    def _on_ls_dragend(self, x, y):
+        """Drag finished in the layer-shell helper: apply edge/grid snap and
+        push the corrected position back down."""
+        nx, ny = self._snap_position(x, y)
+        if (nx, ny) != (x, y):
+            self._ls.set_pos(nx, ny)
+        self._on_ls_pos(nx, ny)   # updates _ls_x/_ls_y and debounce-saves
+
+    def move_to(self, x, y):
+        """Programmatic placement (layout apply). Works on both paths."""
+        if self._use_ls and self._ls:
+            self._ls.set_pos(int(x), int(y))
+            self._on_ls_pos(int(x), int(y))
+        else:
+            self.move(int(x), int(y))
+
+    def get_screen_pos(self):
+        """Current on-screen (x, y) — layer-shell tracks its own coords."""
+        if self._use_ls:
+            return (self._ls_x, self._ls_y)
+        try:
+            return self.get_position()
+        except Exception:
+            return (0, 0)
+
+    def set_hotkey_label(self, text):
+        """Show/refresh the bottom hotkey bar ('' hides). Called by the app
+        whenever client ordering changes; honors the show_hotkey_overlay
+        setting on both display paths."""
+        if not self.config.settings.get("show_hotkey_overlay", True):
+            text = ""
+        self._hotkey_text = text
+        if self._use_ls and self._ls:
+            self._ls.set_hotkey(text)
+        else:
+            if text:
+                self.hotkey_label.set_text(text)
+                self.hotkey_label.show()
+            else:
+                self.hotkey_label.hide()
+
+    def activate_client(self):
+        """Bring this client to the front — same cascade as clicking the
+        thumbnail. Used by hotkey switching (focus change only, never input)."""
+        action = getattr(self, "_click_action", None)
+        if action is not None:          # layer-shell path: full cascade
+            action()
+        else:                           # X11 path: Wnck activation
+            try:
+                if self.wnck_window.is_minimized():
+                    self.wnck_window.unminimize(0)
+                self.on_activate_callback(self.wnck_window)
+            except Exception as e:
+                print(f"[hotkey] activate error: {e}")
+
     def __init__(self, wnck_window, config, on_activate_callback):
         super().__init__()
         self.wnck_window = wnck_window
@@ -91,6 +209,35 @@ class ThumbnailWindow(Gtk.Window):
         else:
             self.label.set_no_show_all(True)
             self.label.hide()
+
+        # Bottom hotkey bar (X11 path; the layer-shell path draws its own).
+        self.hotkey_label = Gtk.Label()
+        self.hotkey_label.set_halign(Gtk.Align.FILL)
+        self.hotkey_label.set_valign(Gtk.Align.END)
+        hk_css = Gtk.CssProvider()
+        hk_css.load_from_data(
+            b"label { background: rgba(0,0,0,0.78); color: #7dd3fc;"
+            b"  padding: 3px 0; font-size: 11px; font-weight: bold; }")
+        self.hotkey_label.get_style_context().add_provider(
+            hk_css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        self.hotkey_label.set_no_show_all(True)
+        self.overlay.add_overlay(self.hotkey_label)
+        self._hotkey_text = ""
+
+        # Pin state: pinned thumbnails ignore drags. Persisted by window name,
+        # same key scheme the saved positions use.
+        pins = self.config.settings.get("thumbnail_pins", {})
+        self.pinned = bool(pins.get(self.wnck_window.get_name() or ""))
+        self.pin_label = Gtk.Label(label="\U0001F4CC")
+        self.pin_label.set_halign(Gtk.Align.END)
+        self.pin_label.set_valign(Gtk.Align.START)
+        self.pin_label.set_margin_top(4)
+        self.pin_label.set_margin_end(6)
+        self.pin_label.set_no_show_all(True)
+        self.overlay.add_overlay(self.pin_label)
+        if self.pinned:
+            self.pin_label.show()
+
 
         # click/drag logic
         self._press_pos = None
@@ -240,6 +387,9 @@ class ThumbnailWindow(Gtk.Window):
                 except Exception as e:
                     print(f"[click] Wnck error: {e}", flush=True)
 
+            # Expose the full activation cascade for hotkey-driven switching.
+            self._click_action = _click
+
             def _ctrl_click():
                 try:
                     self.wnck_window.minimize()
@@ -284,6 +434,7 @@ class ThumbnailWindow(Gtk.Window):
                 self._target_w, self._target_h,
                 _click, _ctrl_click, self._on_ls_pos,
                 _enter, _leave,
+                mclick_cb=self.toggle_pin, dragend_cb=self._on_ls_dragend,
             )
             self._ls_save_timer = None
 
@@ -300,6 +451,11 @@ class ThumbnailWindow(Gtk.Window):
                 self._ls.send_title(title)
 
             _send_title()
+            if getattr(self, "_hotkey_text", ""):
+                self._ls.set_hotkey(self._hotkey_text)
+            if self.pinned:
+                self._ls.set_pinned(True)
+            self.apply_snap_settings()
             # Update label whenever EVE finishes loading the character.
             self.wnck_window.connect("name-changed", lambda *_: _send_title())
             # Fallback poll: EVE may update its title AFTER name-changed fires
@@ -611,7 +767,11 @@ class ThumbnailWindow(Gtk.Window):
             self._dragging = False
             return True
         if event.button == 3:
-            self.begin_move_drag(event.button, int(event.x_root), int(event.y_root), event.time)
+            if not self.pinned:
+                self.begin_move_drag(event.button, int(event.x_root), int(event.y_root), event.time)
+            return True
+        if event.button == 2:
+            self.toggle_pin()
             return True
         return False
 
@@ -620,6 +780,8 @@ class ThumbnailWindow(Gtk.Window):
             return False
         dx = abs(event.x_root - self._press_pos[0])
         dy = abs(event.y_root - self._press_pos[1])
+        if self.pinned:
+            return False
         if not self._dragging and (dx > self._drag_threshold or dy > self._drag_threshold):
             self._dragging = True
             self.begin_move_drag(1, int(self._press_pos[0]), int(self._press_pos[1]), int(self._press_pos[2]))

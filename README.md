@@ -20,12 +20,16 @@ Built from the ground up in Python/GTK3 supports X11 and Wayland via XWayland.
 - **Click to Focus:** Left click any thumbnail to instantly switch to that client
 - **Drag to Reposition:** Left drag or right drag to move thumbnails anywhere on screen
 - **Ctrl+Click to Minimize:** Quickly minimize a client without alt tabbing
+- **Hotkey Switching:** Ctrl+Alt+←/→ cycles clients, Ctrl+Alt+1-9 jumps directly — from anywhere in-game (focus change only, never sends input)
 - **Zoom on Hover:** Thumbnails enlarge when moused over (configurable zoom factor)
 - **Active Client Highlighting:** Configurable colored border shows which client has focus
 - **Character Name Overlay:** Displays character name on each thumbnail
 - **Hide Active Client:** Optionally hide the thumbnail for the currently focused client
 - **Adjustable FPS:** 10, 15, 25, or 30 FPS to balance smoothness vs. CPU usage
 - **Persistent Positions:** Thumbnail positions saved and restored between sessions
+- **Pin Thumbnails:** Middle-click a thumbnail to lock it in place (📌 indicator); middle-click again to unlock
+- **Snapping:** Optional 32 px grid snapping while dragging and edge snapping (thumbnails click flush against each other)
+- **Saved Layouts:** Save the current arrangement as a named profile and re-apply it any time from the Layouts menu
 - **System Tray:** Optional tray icon with Show/Hide and Quit; close-to-tray and start-in-tray settings (requires `libayatana-appindicator-gtk3`)
 - **Wayland Support:** Auto detects Wayland and uses XWayland backend; optional gtk-layer-shell for proper overlay support above fullscreen EVE windows
 - **MultiClient Stability:** GLib priority scheduling keeps UI responsive with 2+ EVE clients
@@ -104,8 +108,8 @@ sudo apt install python3 python3-gi gir1.2-gtk-3.0 gir1.2-wnck-3.0
 # Optional improves click-to-focus reliability:
 sudo apt install wmctrl xdotool
 
-# Optional Wayland overlay support:
-sudo apt install gir1.2-gtk-layer-shell-0
+# Optional Wayland overlay support and system tray:
+sudo apt install gir1.2-gtk-layer-shell-0 gir1.2-ayatanaappindicator3-0.1
 ```
 
 ### Arch Linux
@@ -150,6 +154,9 @@ The management window will appear showing session type (X11/Wayland) and backend
 | Move thumbnail | Left-drag or right-drag |
 | Minimize client | Ctrl + Left-click thumbnail |
 | Zoom thumbnail | Hover (if enabled) |
+| Next / previous client | Ctrl+Alt+Right / Ctrl+Alt+Left |
+| Focus client 1–9 | Ctrl+Alt+1 … Ctrl+Alt+9 |
+| Pin / unpin thumbnail | Middle-click thumbnail |
 
 ### Debug Mode
 
@@ -190,6 +197,9 @@ Settings are stored at `~/.config/podsight/config.json` (settings from the old `
 | Active border color | #00FF00 | Border color for the active client's thumbnail |
 | Close to tray | Off | Closing the window hides to the system tray instead of quitting |
 | Start hidden in tray | Off | Launch with only the tray icon showing |
+| Client-switching hotkeys | On | Ctrl+Alt global hotkeys for cycling/jumping between clients |
+| Snap to grid | Off | Quantize thumbnail drags to a 32 px grid |
+| Edge snapping | Off | Thumbnails click flush against each other on release |
 
 Example `config.json`:
 

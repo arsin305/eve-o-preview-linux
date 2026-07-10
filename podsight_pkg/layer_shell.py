@@ -97,6 +97,28 @@ class _Thumb(Gtk.Window):
         self._lbl.set_no_show_all(True)
         self._ov.add_overlay(self._lbl)
 
+        # Bottom hotkey bar (full-width strip, hidden until HOTKEY is sent)
+        self._hk = Gtk.Label()
+        self._hk.set_halign(Gtk.Align.FILL)
+        self._hk.set_valign(Gtk.Align.END)
+        _hk_css = Gtk.CssProvider()
+        _hk_css.load_from_data(
+            b"label { background: rgba(0,0,0,0.78); color: #7dd3fc;"
+            b"  padding: 3px 0; font-size: 11px; font-weight: bold; }")
+        self._hk.get_style_context().add_provider(
+            _hk_css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        self._hk.set_no_show_all(True)
+        self._ov.add_overlay(self._hk)
+
+        # Pin indicator (top-right), shown while the thumbnail is pinned
+        self._pin_lbl = Gtk.Label(label="\U0001F4CC")
+        self._pin_lbl.set_halign(Gtk.Align.END)
+        self._pin_lbl.set_valign(Gtk.Align.START)
+        self._pin_lbl.set_margin_top(4)
+        self._pin_lbl.set_margin_end(6)
+        self._pin_lbl.set_no_show_all(True)
+        self._ov.add_overlay(self._pin_lbl)
+
         self.add(self._ov)
 
         # Border drawn via Cairo.
@@ -113,6 +135,12 @@ class _Thumb(Gtk.Window):
         self._drag = False
         self._ctrl = False
         self._btn_down = False
+        self._pinned = False
+        self._grid = 0          # live grid snap, 0 = off
+        self._edge = False      # live edge magnetism
+        self._rects = []        # sibling rectangles for edge snapping
+        self._fx = 0.0          # unquantized drag position (grid math needs
+        self._fy = 0.0          # deltas to accumulate BEFORE quantization)
         self._last_click_emit = 0.0   # debounce: ignore rapid repeat clicks
 
         self.add_events(
@@ -156,6 +184,17 @@ class _Thumb(Gtk.Window):
         else:
             self._lbl.hide()
 
+    def set_hotkey(self, text):
+        if text:
+            self._hk.set_text(text)
+            self._hk.show()
+        else:
+            self._hk.hide()
+
+    def set_pinned(self, pinned):
+        self._pinned = pinned
+        self._pin_lbl.show() if pinned else self._pin_lbl.hide()
+
     def _draw_border(self, w, cr):
         if not self._border_color:
             return False
@@ -189,7 +228,11 @@ class _Thumb(Gtk.Window):
             self._drag_dist = 0.0
             self._drag = False
             self._btn_down = True
+            self._fx = float(self._mx)
+            self._fy = float(self._my)
             return True
+        if ev.button == 2:
+            return True   # consume; MCLICK emitted on release
         return False
 
     def _on_motion(self, w, ev):
@@ -203,8 +246,38 @@ class _Thumb(Gtk.Window):
         if self._drag_dist > 4:
             self._drag = True
         if self._drag:
-            nx = max(0, self._mx + int(dx))
-            ny = max(0, self._my + int(dy))
+            if self._pinned:
+                return True   # pinned: consume motion, never move
+            # Accumulate raw motion in floats; quantizing the accumulator
+            # itself would round every small delta back to the same cell
+            # and freeze the window (the v1 grid bug).
+            self._fx = max(0.0, self._fx + dx)
+            self._fy = max(0.0, self._fy + dy)
+            nx, ny = int(self._fx), int(self._fy)
+            if self._grid:
+                g = self._grid
+                nx = int(round(self._fx / g)) * g
+                ny = int(round(self._fy / g)) * g
+            if self._edge and self._rects:
+                mw, mh = self.get_size()
+                D = 12
+                for (ox, oy, ow, oh) in self._rects:
+                    v_overlap = not (ny + mh < oy or ny > oy + oh)
+                    h_overlap = not (nx + mw < ox or nx > ox + ow)
+                    if v_overlap and abs(nx - (ox + ow)) <= D:
+                        nx = ox + ow
+                    elif v_overlap and abs((nx + mw) - ox) <= D:
+                        nx = ox - mw
+                    if h_overlap and abs(ny - (oy + oh)) <= D:
+                        ny = oy + oh
+                    elif h_overlap and abs((ny + mh) - oy) <= D:
+                        ny = oy - mh
+                    if abs(ny - oy) <= D and (nx == ox + ow or nx + mw == ox):
+                        ny = oy
+                    if abs(nx - ox) <= D and (ny == oy + oh or ny + mh == oy):
+                        nx = ox
+                nx = max(0, nx)
+                ny = max(0, ny)
             if nx != self._mx or ny != self._my:
                 self.set_pos(nx, ny)
                 self._emit(f"POS {nx} {ny}")
@@ -227,7 +300,11 @@ class _Thumb(Gtk.Window):
             # If drag just ended and cursor is still on window, fire ENTER
             # so the main process zoom debounce restarts cleanly.
             if was_drag:
+                self._emit(f"DRAGEND {self._mx} {self._my}")
                 self._emit("ENTER")
+            return True
+        if ev.button == 2:
+            self._emit("MCLICK")
             return True
         return False
 
@@ -275,6 +352,22 @@ def _reader():
                 GLib.idle_add(win.set_active, parts[1] == "1", parts[2])
             elif cmd == "TITLE":
                 GLib.idle_add(win.set_title, " ".join(parts[1:]))
+            elif cmd == "HOTKEY":
+                GLib.idle_add(win.set_hotkey, " ".join(parts[1:]))
+            elif cmd == "PINNED":
+                GLib.idle_add(win.set_pinned, parts[1] == "1")
+            elif cmd == "SNAP":
+                win._grid = int(parts[1])
+                win._edge = len(parts) > 2 and parts[2] == "1"
+            elif cmd == "RECTS":
+                rects = []
+                if len(parts) > 1:
+                    for item in parts[1].split(";"):
+                        try:
+                            rects.append(tuple(int(v) for v in item.split(",")))
+                        except ValueError:
+                            pass
+                win._rects = [r for r in rects if len(r) == 4]
             elif cmd == "SHOW":
                 GLib.idle_add(win.show)
             elif cmd == "HIDE":
@@ -297,7 +390,7 @@ class _LayerShellDisplay:
     """Manages a layer-shell subprocess OVERLAY window for one thumbnail."""
 
     def __init__(self, x, y, w, h, click_cb, ctrl_click_cb, pos_cb,
-                 enter_cb=None, leave_cb=None):
+                 enter_cb=None, leave_cb=None, mclick_cb=None, dragend_cb=None):
         import sys as _sys
         self._x, self._y = x, y
         self._click_cb = click_cb
@@ -305,6 +398,8 @@ class _LayerShellDisplay:
         self._pos_cb = pos_cb
         self._enter_cb = enter_cb
         self._leave_cb = leave_cb
+        self._mclick_cb = mclick_cb
+        self._dragend_cb = dragend_cb
         # Two queues funnelled through one background writer thread so the
         # GTK main thread NEVER writes to stdin and can never block.
         #
@@ -403,6 +498,12 @@ class _LayerShellDisplay:
                     p = line.split()
                     if len(p) == 3:
                         GLib.idle_add(self._pos_cb, int(p[1]), int(p[2]), priority=_P)
+                elif line == "MCLICK" and self._mclick_cb:
+                    GLib.idle_add(self._mclick_cb, priority=_P)
+                elif line.startswith("DRAGEND ") and self._dragend_cb:
+                    p = line.split()
+                    if len(p) == 3:
+                        GLib.idle_add(self._dragend_cb, int(p[1]), int(p[2]), priority=_P)
                 elif line == "ENTER" and self._enter_cb:
                     GLib.idle_add(self._enter_cb, priority=_P)
                 elif line == "LEAVE" and self._leave_cb:
@@ -443,6 +544,19 @@ class _LayerShellDisplay:
 
     def send_title(self, title):
         self._ctrl_send(f"TITLE {title}")
+
+    def set_hotkey(self, text):
+        self._ctrl_send(f"HOTKEY {text}")
+
+    def set_pinned(self, pinned):
+        self._ctrl_send(f"PINNED {'1' if pinned else '0'}")
+
+    def set_snap(self, grid_px, edge=False):
+        self._ctrl_send(f"SNAP {int(grid_px)} {'1' if edge else '0'}")
+
+    def set_rects(self, rects):
+        payload = ";".join(f"{x},{y},{w},{h}" for (x, y, w, h) in rects)
+        self._ctrl_send(f"RECTS {payload}")
 
     def show(self):
         self._ctrl_send("SHOW")

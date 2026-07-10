@@ -19,6 +19,8 @@ It is an independent Linux implementation (not a port of the Windows EVE-O Previ
 - **Zoom on hover** with configurable factor
 - **Active client highlight** — colored border on the focused client's thumbnail
 - **System tray** — Show/Hide menu, optional close-to-tray and start-in-tray
+- **Hotkey switching** — Ctrl+Alt+arrows cycle clients, Ctrl+Alt+1-9 jump directly (focus only, never input)
+- **Pins, snapping, layouts** — middle-click pin, live 32 px grid + edge magnetism, named layout profiles
 - **Settings dialog** — size, opacity, FPS, border color, behavior toggles
 
 ---
@@ -101,7 +103,8 @@ podsight/
     ├── thumbnail.py            per-client preview window           (~680)
     ├── app.py                  detection + management window       (~510)
     ├── settings_dialog.py      settings UI                         (~440)
-    └── tray.py                 StatusNotifier tray icon            (~60)
+    ├── tray.py                 StatusNotifier tray icon            (~60)
+    └── hotkeys.py              XGrabKey client switching           (~185)
 ```
 
 ---
@@ -160,6 +163,12 @@ Client discovery is deliberately conservative (a wrong match once caused multi-c
 5. Last resort: accept on client-process cmdline markers (`exefile.exe`, `steam_app_8500`, …)
 
 Wnck signals (`window-opened`/`closed`, `active-window-changed`) plus periodic rescans drive thumbnail lifecycle; the active-border poll runs at 150 ms while settling.
+
+### `hotkeys.py` — client-switching hotkeys
+
+XGrabKey on the X/XWayland root (own display connection, GLib fd watch), grabbing every CapsLock/NumLock modifier variant. Cycling and the 1-9 direct keys resolve targets through `app._ordered_xids()` — **on-screen order**, the same source of truth the badges and thumbnail bars display. 250 ms debounce tames key auto-repeat; colliding grabs (existing KDE shortcuts) are reported per-combo and skipped. Scope is deliberately focus-only: sending input to clients violates CCP's EULA and is out of scope by design.
+
+Related machinery elsewhere: thumbnails expose `activate_client()` (the same cascade clicks use), pins live in `thumbnail.py` (middle-click, persisted per window name, enforced on both display paths), live grid/edge snapping runs inside the layer-shell helper (float accumulator to avoid quantization feedback; sibling rects pushed via the `RECTS` IPC message), and named layouts are position profiles in `app.py` applied in screen order.
 
 ### `config.py`, `stats.py`, `tray.py`
 

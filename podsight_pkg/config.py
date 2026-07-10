@@ -30,6 +30,13 @@ class Config:
             "active_border_color": "#00FF00",  # Neon green default
             "close_to_tray": False,   # closing the window hides to tray instead
             "start_in_tray": False,   # launch hidden, tray icon only
+            "hotkeys_enabled": True,  # Ctrl+Alt+arrows/1-9 client switching
+            "show_hotkey_overlay": True,  # hotkey bar at bottom of thumbnails
+            "snap_to_grid": False,    # quantize thumbnail drags to a grid
+            "grid_size": 32,          # grid cell size in pixels
+            "edge_snap": False,       # click flush against nearby thumbnails
+            "thumbnail_pins": {},     # window-name -> pinned
+            "layouts": {},            # profile name -> [[x, y], ...]
             "thumbnail_positions": {}
         }
         self.settings = self.load()

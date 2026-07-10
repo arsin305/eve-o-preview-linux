@@ -302,6 +302,29 @@ class SettingsDialog(Gtk.Dialog):
         self.start_in_tray.set_active(self.config.settings.get("start_in_tray", False))
         behavior_box.pack_start(self.start_in_tray, False, False, 0)
 
+        self.hotkeys_enabled = Gtk.CheckButton(
+            label="Client-switching hotkeys (Ctrl+Alt+←/→, Ctrl+Alt+1-9)")
+        self.hotkeys_enabled.set_active(self.config.settings.get("hotkeys_enabled", True))
+        self.hotkeys_enabled.set_tooltip_text(
+            "Cycle or jump focus between EVE clients from anywhere in-game.\n"
+            "Focus switching only — never sends input to clients.\n"
+            "Takes effect after restarting PodSight.")
+        behavior_box.pack_start(self.hotkeys_enabled, False, False, 0)
+
+        self.show_hotkey_overlay = Gtk.CheckButton(
+            label="Show hotkey label at the bottom of thumbnails")
+        self.show_hotkey_overlay.set_active(
+            self.config.settings.get("show_hotkey_overlay", True))
+        behavior_box.pack_start(self.show_hotkey_overlay, False, False, 0)
+
+        self.snap_to_grid = Gtk.CheckButton(label="Snap thumbnails to a 32 px grid while dragging")
+        self.snap_to_grid.set_active(self.config.settings.get("snap_to_grid", False))
+        behavior_box.pack_start(self.snap_to_grid, False, False, 0)
+
+        self.edge_snap = Gtk.CheckButton(label="Snap thumbnails flush against each other on release")
+        self.edge_snap.set_active(self.config.settings.get("edge_snap", False))
+        behavior_box.pack_start(self.edge_snap, False, False, 0)
+
         if not TRAY_AVAILABLE:
             for cb in (self.close_to_tray, self.start_in_tray):
                 cb.set_sensitive(False)
@@ -416,6 +439,10 @@ class SettingsDialog(Gtk.Dialog):
         self.config.settings["show_overlay"] = self.show_overlay.get_active()
         self.config.settings["close_to_tray"] = self.close_to_tray.get_active()
         self.config.settings["start_in_tray"] = self.start_in_tray.get_active()
+        self.config.settings["hotkeys_enabled"] = self.hotkeys_enabled.get_active()
+        self.config.settings["show_hotkey_overlay"] = self.show_hotkey_overlay.get_active()
+        self.config.settings["snap_to_grid"] = self.snap_to_grid.get_active()
+        self.config.settings["edge_snap"] = self.edge_snap.get_active()
         
         # Save border color
         color_text = self.color_entry.get_text()
