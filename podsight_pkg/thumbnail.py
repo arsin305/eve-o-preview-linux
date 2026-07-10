@@ -5,6 +5,7 @@ from .platform import (DEBUG_CAPTURE, _net_activate_window, _get_child_xids,
                        _get_xlib, _xlib_display,
                        _LAYER_SHELL_AVAILABLE, _WAYLAND_SESSION)
 from .layer_shell import _LayerShellDisplay
+from . import capture
 from .stats import STATS, _Stats
 from gi.repository import Gtk, Gdk, GdkPixbuf, Wnck, GLib, GdkX11
 
@@ -504,14 +505,22 @@ class ThumbnailWindow(Gtk.Window):
                     self._set_icon_fallback()
                     return True
                 _t0 = time.perf_counter() if STATS else 0.0
-                Gdk.error_trap_push()
-                pb = Gdk.pixbuf_get_from_window(self.live_window, 0, 0, w, h)
-                if Gdk.error_trap_pop():
-                    pb = None  # BadDrawable / window gone — ignore
+                # Fast path: server-side scale via XComposite+XRender.
+                # Returns an already-thumbnail-sized pixbuf, or None on any
+                # failure — in which case the legacy path below still runs,
+                # preserving the Wine child-XID rebinding behavior.
+                pb = capture.grab_scaled(self._capture_xid, w, h,
+                                         self._target_w, self._target_h)
+                if pb is None:
+                    Gdk.error_trap_push()
+                    pb = Gdk.pixbuf_get_from_window(self.live_window, 0, 0, w, h)
+                    if Gdk.error_trap_pop():
+                        pb = None  # BadDrawable / window gone — ignore
+                    if pb:
+                        pb = pb.scale_simple(self._target_w, self._target_h, GdkPixbuf.InterpType.BILINEAR)
                 if DEBUG_CAPTURE:
                     print(f" → pixbuf={'ok' if pb else 'None'}")
                 if pb:
-                    pb = pb.scale_simple(self._target_w, self._target_h, GdkPixbuf.InterpType.BILINEAR)
                     if self._use_ls and self._ls:
                         self._ls.send_frame(pb)
                     else:

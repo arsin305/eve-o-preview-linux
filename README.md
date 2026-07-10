@@ -207,7 +207,7 @@ Example `config.json`:
 
 ## How It Works
 
-EVE Online on Linux runs through Wine/Proton, which creates XWayland windows. The script uses `libwnck` to discover EVE client windows by matching process command lines against `exefile.exe`, `eve.exe`, and `steam_app_8500`. It captures window content via `GdkX11.gdk_pixbuf_get_from_window()` and renders scaled thumbnails as always-on-top GTK windows.
+EVE Online on Linux runs through Wine/Proton, which creates XWayland windows. The script uses `libwnck` to discover EVE client windows by matching process command lines against `exefile.exe`, `eve.exe`, and `steam_app_8500`. Window content is captured server-side: XComposite provides each client's offscreen backing pixmap and XRender scales it down on the X server, so only thumbnail-sized images (~250 KB) cross the connection instead of full frames (~8 MB). If those extensions are unavailable, it falls back to `GdkX11.gdk_pixbuf_get_from_window()` capture. Thumbnails render as always-on-top GTK windows.
 
 **On Wayland with gtk-layer-shell installed**, each thumbnail is rendered by a separate subprocess running with `GDK_BACKEND=wayland`. These subprocesses create layer-shell OVERLAY surfaces guaranteed by the Wayland compositor to appear above all other windows, including fullscreen EVE clients. The main process captures frames via GdkX11 and sends them to each subprocess over stdin/stdout pipes.
 
