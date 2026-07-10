@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=PodSight
+GenericName=EVE Client Previewer
+Comment=Live thumbnail previews for multiboxing EVE Online
+Exec=@LAUNCHER@
+Icon=podsight
+Terminal=false
+Categories=Game;Utility;
+Keywords=EVE;multibox;preview;thumbnail;
+StartupNotify=false
+StartupWMClass=podsight

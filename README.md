@@ -119,22 +119,22 @@ sudo pacman -S wmctrl xdotool gtk-layer-shell
 
 ### Get PodSight
 
-PodSight is a small Python package (entry point plus `podsight_pkg/`), so clone the repository:
-
 ```bash
 git clone https://github.com/arsin305/podsight.git
 cd podsight
+./install.sh
 ```
+
+The installer is per-user (no sudo): it copies the app to `~/.local/share/podsight/`, adds a **PodSight** entry with icon to your application menu, and creates a `podsight` command. It checks required dependencies and prints the `dnf` command for any optional ones. Remove everything with `./uninstall.sh`.
+
+Prefer running straight from the repo? That still works:
 
 ---
 
 ## Usage
 
 1. Start your EVE Online clients (Steam, Lutris, or standalone Wine)
-2. Run the script:
-   ```bash
-   python3 podsight.py
-   ```
+2. Launch **PodSight** from your application menu (or run `podsight`, or `python3 podsight.py` from the repo). When launched from the menu, terminal output goes to `~/.local/state/podsight/podsight.log`.
 
 The management window will appear showing session type (X11/Wayland) and backend info. EVE clients are detected automatically thumbnails appear once a character is loaded and the window title resolves to `EVE - CharacterName`.
 

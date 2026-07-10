@@ -16,6 +16,13 @@ from gi.repository import Gtk, Gdk, Wnck, GLib
 
 
 def main():
+    # Identify ourselves to the window manager: WM_CLASS becomes "podsight"
+    # and every window advertises the themed icon, so KDE's taskbar and
+    # alt-tab show our icon instead of a generic one.
+    GLib.set_prgname("podsight")
+    Gdk.set_program_class("podsight")
+    Gtk.Window.set_default_icon_name("podsight")
+
     screen = Wnck.Screen.get_default()
     if screen is None:
         if _WAYLAND_SESSION:
