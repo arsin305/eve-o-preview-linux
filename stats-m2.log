@@ -1,0 +1,40 @@
+[stats] performance counters enabled — reporting every 5s to stderr
+[stats] rss=63MB thumbnails=0
+[stats] rss=63MB thumbnails=0
+[stats] rss=63MB thumbnails=0
+[stats] rss=63MB thumbnails=0
+[stats] rss=63MB thumbnails=0
+[stats] rss=63MB thumbnails=0
+[stats] rss=64MB thumbnails=0
+[stats] rss=64MB thumbnails=0
+[stats] rss=64MB thumbnails=0
+[stats] rss=143MB thumbnails=1
+  EVE - Tarin Longwarp           target=25fps actual=22.9fps capture_avg= 30.4ms frames=29
+[stats] rss=202MB thumbnails=3
+  EVE - Tarin Longwarp           target=25fps actual=14.0fps capture_avg= 28.6ms frames=70
+  EVE - Hullpatch Jarek          target=25fps actual=13.4fps capture_avg= 29.5ms frames=64
+  EVE - KaelMorrick              target=25fps actual=10.9fps capture_avg= 30.4ms frames=34
+[stats] rss=202MB thumbnails=3
+  EVE - Tarin Longwarp           target=25fps actual=10.6fps capture_avg= 31.7ms frames=53
+  EVE - Hullpatch Jarek          target=25fps actual=10.6fps capture_avg= 31.3ms frames=53
+  EVE - KaelMorrick              target=25fps actual=10.6fps capture_avg= 31.5ms frames=53
+[stats] rss=202MB thumbnails=3
+  EVE - Tarin Longwarp           target=25fps actual=10.4fps capture_avg= 31.5ms frames=53
+  EVE - Hullpatch Jarek          target=25fps actual=10.4fps capture_avg= 31.6ms frames=53
+  EVE - KaelMorrick              target=25fps actual=10.4fps capture_avg= 31.7ms frames=53
+[stats] rss=202MB thumbnails=3
+  EVE - Tarin Longwarp           target=25fps actual=10.4fps capture_avg= 31.6ms frames=53
+  EVE - Hullpatch Jarek          target=25fps actual=10.4fps capture_avg= 31.3ms frames=53
+  EVE - KaelMorrick              target=25fps actual=10.4fps capture_avg= 31.1ms frames=53
+[stats] rss=202MB thumbnails=3
+  EVE - Tarin Longwarp           target=25fps actual=14.9fps capture_avg= 30.8ms frames=75
+  EVE - Hullpatch Jarek          target=25fps actual= 2.2fps capture_avg= 31.4ms frames=11
+  EVE - KaelMorrick              target=25fps actual=14.9fps capture_avg= 30.8ms frames=75
+[stats] rss=117MB thumbnails=3
+  EVE - Tarin Longwarp           target=25fps actual= 1.0fps capture_avg= 29.5ms frames=5
+  EVE - Hullpatch Jarek          target=25fps actual= 0.0fps capture_avg=  0.0ms frames=0
+  EVE - KaelMorrick              target=25fps actual=20.2fps capture_avg= 29.5ms frames=101
+[stats] rss=117MB thumbnails=3
+  EVE - Tarin Longwarp           target=25fps actual= 0.0fps capture_avg=  0.0ms frames=0
+  EVE - Hullpatch Jarek          target=25fps actual= 0.0fps capture_avg=  0.0ms frames=0
+  EVE - KaelMorrick              target=25fps actual= 0.0fps capture_avg=  0.0ms frames=0

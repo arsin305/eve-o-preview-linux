@@ -1,6 +1,7 @@
-# EVE-O Preview for Linux
+# PodSight
 
-**Live thumbnail previews for multiboxing EVE Online on Linux.**
+**PodSight — live thumbnail previews for multiboxing EVE Online on Linux.**
+(Formerly *EVE-O Preview for Linux*.)
 Click to focus clients, drag to reposition, and zoom on hover.
 Features customizable borders, character overlays, and real time updates.
 Built from the ground up in Python/GTK3 supports X11 and Wayland via XWayland.
@@ -116,18 +117,13 @@ sudo pacman -S python gtk3 libwnck3
 sudo pacman -S wmctrl xdotool gtk-layer-shell
 ```
 
-### Download the Script
+### Get PodSight
+
+PodSight is a small Python package (entry point plus `podsight_pkg/`), so clone the repository:
 
 ```bash
-wget https://raw.githubusercontent.com/arsin305/eve-o-preview-linux/main/eve_o_preview_linux.py
-chmod +x eve_o_preview_linux.py
-```
-
-Or clone the repository:
-
-```bash
-git clone https://github.com/arsin305/eve-o-preview-linux.git
-cd eve-o-preview-linux
+git clone https://github.com/arsin305/podsight.git
+cd podsight
 ```
 
 ---
@@ -137,7 +133,7 @@ cd eve-o-preview-linux
 1. Start your EVE Online clients (Steam, Lutris, or standalone Wine)
 2. Run the script:
    ```bash
-   python3 eve_o_preview_linux.py
+   python3 podsight.py
    ```
 
 The management window will appear showing session type (X11/Wayland) and backend info. EVE clients are detected automatically thumbnails appear once a character is loaded and the window title resolves to `EVE - CharacterName`.
@@ -154,22 +150,28 @@ The management window will appear showing session type (X11/Wayland) and backend
 ### Debug Mode
 
 ```bash
-python3 eve_o_preview_linux.py --debug
+python3 podsight.py --debug
 ```
 
 Enables per-frame capture diagnostics in the terminal.
 
+```bash
+python3 podsight.py --stats
+```
+
+Prints performance counters (per-thumbnail FPS, average capture time, process RSS) to stderr every 5 seconds.
+
 For IPC message tracing (layer-shell subprocess communication):
 
 ```bash
-EVE_PREVIEW_IPC_DEBUG=1 python3 eve_o_preview_linux.py
+PODSIGHT_IPC_DEBUG=1 python3 podsight.py
 ```
 
 ---
 
 ## Configuration
 
-Settings are stored at `~/.config/eve-o-preview-linux/config.json` and can be edited through the Settings dialog in the management window (gear icon in the header bar).
+Settings are stored at `~/.config/podsight/config.json` (settings from the old `~/.config/eve-o-preview-linux/` location are migrated automatically on first run) and can be edited through the Settings dialog in the management window (gear icon in the header bar).
 
 | Setting | Default | Description |
 |---|---|---|
@@ -269,7 +271,7 @@ This is an unofficial, community-created tool and is **not affiliated with, endo
 EVE Online™ is a registered trademark of CCP hf.
 
 **What This Tool Does:**
-EVE O Preview for Linux is a passive observation tool that creates visual thumbnails of EVE Online client windows. It does *not*:
+PodSight is a passive observation tool that creates visual thumbnails of EVE Online client windows. It does *not*:
 - Modify game files or memory
 - Inject code into the client
 - Automate gameplay
@@ -285,12 +287,12 @@ By using this tool, you acknowledge that:
 
 ## Contributing
 
-Pull requests welcome! For major changes, please [open an issue](https://github.com/arsin305/eve-o-preview-linux/issues) first.
+Pull requests welcome! For major changes, please [open an issue](https://github.com/arsin305/podsight/issues) first.
 
 ```bash
-git clone https://github.com/arsin305/eve-o-preview-linux.git
-cd eve-o-preview-linux
-python3 eve_o_preview_linux.py
+git clone https://github.com/arsin305/podsight.git
+cd podsight
+python3 podsight.py
 ```
 
 ---
@@ -299,7 +301,7 @@ python3 eve_o_preview_linux.py
 
 - [EVE Online](https://www.eveonline.com/)
 - [EVE-O Preview for Windows](https://github.com/Phrynohyas/eve-o-preview)
-- [Report Issues](https://github.com/arsin305/eve-o-preview-linux/issues)
+- [Report Issues](https://github.com/arsin305/podsight/issues)
 
 ---
 
@@ -307,7 +309,7 @@ python3 eve_o_preview_linux.py
 
 If you encounter issues:
 1. Review the troubleshooting section above
-2. Check open [GitHub issues](https://github.com/arsin305/eve-o-preview-linux/issues)
+2. Check open [GitHub issues](https://github.com/arsin305/podsight/issues)
 3. Include when reporting:
    - Linux distro and version
    - Desktop environment and session type (`echo $XDG_SESSION_TYPE`)
