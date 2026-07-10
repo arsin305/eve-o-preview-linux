@@ -12,6 +12,7 @@ from podsight_pkg import __version__
 from podsight_pkg.app import EVEOPreview
 from podsight_pkg.stats import STATS
 from podsight_pkg.platform import _WAYLAND_SESSION
+from podsight_pkg import tray
 from gi.repository import Gtk, Gdk, Wnck, GLib
 
 
@@ -20,7 +21,6 @@ def main():
     # and every window advertises the themed icon, so KDE's taskbar and
     # alt-tab show our icon instead of a generic one.
     GLib.set_prgname("podsight")
-    Gdk.set_program_class("podsight")
     Gtk.Window.set_default_icon_name("podsight")
 
     screen = Wnck.Screen.get_default()
@@ -37,9 +37,22 @@ def main():
               file=os.sys.stderr)
         STATS.start()
     app = EVEOPreview()
-    # Closing the management window exits the application. Future optional
-    # close-to-tray behavior should be handled by a tray setting instead of
-    # overriding the close button unconditionally.
+
+    # System tray (optional): Show/Hide + Quit menu. When the "close to
+    # tray" setting is on, closing the window hides it instead of quitting.
+    app_tray = None
+    if tray.TRAY_AVAILABLE:
+        app_tray = tray.Tray(app)
+    else:
+        print("[podsight] Tray backend not found — tray options disabled.")
+        print("[podsight]   Fedora: sudo dnf install libayatana-appindicator-gtk3")
+
+    def _on_delete(widget, _event):
+        if app_tray and widget.config.settings.get("close_to_tray", False):
+            widget.hide()
+            return True   # stop the default destroy
+        return False
+    app.connect("delete-event", _on_delete)
     app.connect("destroy", Gtk.main_quit)
 
     # Re-assert keep-above whenever the management window is (re-)mapped —
@@ -67,7 +80,10 @@ def main():
         return True  # keep repeating
     GLib.timeout_add(4000, _keep_app_above)
 
-    app.show_all()
+    if app_tray and app.config.settings.get("start_in_tray", False):
+        print("[podsight] Starting hidden in tray.")
+    else:
+        app.show_all()
     Gtk.main()
 
 if __name__ == "__main__":

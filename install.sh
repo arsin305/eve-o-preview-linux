@@ -71,6 +71,8 @@ command -v wmctrl  >/dev/null || missing+=(wmctrl)
 command -v xdotool >/dev/null || missing+=(xdotool)
 python3 -c 'import gi; gi.require_version("GtkLayerShell","0.1")' 2>/dev/null \
     || missing+=(gtk-layer-shell)
+python3 -c 'import gi; gi.require_version("AyatanaAppIndicator3","0.1")' 2>/dev/null \
+    || missing+=(libayatana-appindicator-gtk3)
 if [ "${#missing[@]}" -gt 0 ]; then
     say "Optional (recommended) packages not found: ${missing[*]}"
     say "  Fedora:  sudo dnf install ${missing[*]}"

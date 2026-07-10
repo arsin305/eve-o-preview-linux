@@ -28,6 +28,8 @@ class Config:
             "show_overlay": True,
             "refresh_fps": 10,  # FPS instead of period
             "active_border_color": "#00FF00",  # Neon green default
+            "close_to_tray": False,   # closing the window hides to tray instead
+            "start_in_tray": False,   # launch hidden, tray icon only
             "thumbnail_positions": {}
         }
         self.settings = self.load()

@@ -26,6 +26,7 @@ Built from the ground up in Python/GTK3 supports X11 and Wayland via XWayland.
 - **Hide Active Client:** Optionally hide the thumbnail for the currently focused client
 - **Adjustable FPS:** 10, 15, 25, or 30 FPS to balance smoothness vs. CPU usage
 - **Persistent Positions:** Thumbnail positions saved and restored between sessions
+- **System Tray:** Optional tray icon with Show/Hide and Quit; close-to-tray and start-in-tray settings (requires `libayatana-appindicator-gtk3`)
 - **Wayland Support:** Auto detects Wayland and uses XWayland backend; optional gtk-layer-shell for proper overlay support above fullscreen EVE windows
 - **MultiClient Stability:** GLib priority scheduling keeps UI responsive with 2+ EVE clients
 
@@ -93,7 +94,7 @@ sudo dnf install python3 python3-gobject gtk3 libwnck3
 sudo dnf install wmctrl xdotool
 
 # Optional Wayland overlay support (recommended on KDE Plasma / GNOME Wayland):
-sudo dnf install gtk-layer-shell
+sudo dnf install gtk-layer-shell libayatana-appindicator-gtk3
 ```
 
 ### Ubuntu / Debian

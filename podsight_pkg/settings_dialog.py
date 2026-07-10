@@ -292,6 +292,23 @@ class SettingsDialog(Gtk.Dialog):
         self.show_overlay.set_active(self.config.settings["show_overlay"])
         behavior_box.pack_start(self.show_overlay, False, False, 0)
 
+        # Tray options — disabled (greyed out) when the tray backend is absent.
+        from .tray import TRAY_AVAILABLE
+        self.close_to_tray = Gtk.CheckButton(label="Close to tray instead of quitting")
+        self.close_to_tray.set_active(self.config.settings.get("close_to_tray", False))
+        behavior_box.pack_start(self.close_to_tray, False, False, 0)
+
+        self.start_in_tray = Gtk.CheckButton(label="Start hidden in tray")
+        self.start_in_tray.set_active(self.config.settings.get("start_in_tray", False))
+        behavior_box.pack_start(self.start_in_tray, False, False, 0)
+
+        if not TRAY_AVAILABLE:
+            for cb in (self.close_to_tray, self.start_in_tray):
+                cb.set_sensitive(False)
+                cb.set_tooltip_text(
+                    "Requires the system tray backend:\n"
+                    "sudo dnf install libayatana-appindicator-gtk3")
+
         vbox.pack_start(behavior_box, False, False, 0)
 
         # Interaction section
@@ -397,6 +414,8 @@ class SettingsDialog(Gtk.Dialog):
         self.config.settings["zoom_on_hover"] = self.zoom_hover.get_active()
         self.config.settings["zoom_factor"] = float(self.zoom_factor.get_value())
         self.config.settings["show_overlay"] = self.show_overlay.get_active()
+        self.config.settings["close_to_tray"] = self.close_to_tray.get_active()
+        self.config.settings["start_in_tray"] = self.start_in_tray.get_active()
         
         # Save border color
         color_text = self.color_entry.get_text()
