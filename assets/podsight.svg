@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- PodSight icon — original stylized artwork, MIT licensed with the project. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#1d3a5f"/>
+      <stop offset="60%" stop-color="#122237"/>
+      <stop offset="100%" stop-color="#0a1420"/>
+    </radialGradient>
+    <linearGradient id="hull" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0%" stop-color="#f2d98a"/>
+      <stop offset="45%" stop-color="#c9a94f"/>
+      <stop offset="100%" stop-color="#7d652a"/>
+    </linearGradient>
+    <linearGradient id="nose" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a5560"/>
+      <stop offset="100%" stop-color="#20262c"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#b9ffcf"/>
+      <stop offset="45%" stop-color="#48f08b"/>
+      <stop offset="100%" stop-color="#0c7a3f"/>
+    </radialGradient>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9ff0ff"/>
+      <stop offset="100%" stop-color="#3ec2ee"/>
+    </linearGradient>
+  </defs>
+
+  <!-- squircle background -->
+  <rect x="8" y="8" width="240" height="240" rx="56" fill="url(#bg)"/>
+
+  <!-- faint starfield -->
+  <g fill="#bfe9ff">
+    <circle cx="52" cy="56" r="2.2" opacity="0.7"/>
+    <circle cx="204" cy="44" r="1.6" opacity="0.5"/>
+    <circle cx="70" cy="186" r="1.4" opacity="0.4"/>
+    <circle cx="216" cy="120" r="1.5" opacity="0.5"/>
+  </g>
+
+  <!-- blue under-glow -->
+  <ellipse cx="114" cy="196" rx="44" ry="10" fill="#3ec2ee" opacity="0.35"/>
+
+  <!-- pod hull: golden ovoid, pointed top -->
+  <path d="M 114 52
+           C 86 72, 66 114, 70 148
+           C 74 180, 92 194, 114 194
+           C 136 194, 154 180, 158 148
+           C 162 114, 142 72, 114 52 Z"
+        fill="url(#hull)"/>
+
+  <!-- hull panel seams -->
+  <path d="M 114 52 C 100 92, 96 140, 102 192" fill="none"
+        stroke="#8a6f2e" stroke-width="3" opacity="0.55"/>
+  <path d="M 114 52 C 128 92, 132 140, 126 192" fill="none"
+        stroke="#8a6f2e" stroke-width="3" opacity="0.55"/>
+  <!-- top ridge highlight -->
+  <path d="M 108 62 C 96 84, 88 112, 88 136" fill="none"
+        stroke="#f7e7ae" stroke-width="5" stroke-linecap="round" opacity="0.8"/>
+
+  <!-- dark mechanical nose section -->
+  <path d="M 82 138
+           C 90 128, 138 128, 146 138
+           C 150 162, 138 186, 114 188
+           C 90 186, 78 162, 82 138 Z"
+        fill="url(#nose)"/>
+  <!-- nose rim -->
+  <path d="M 82 138 C 90 128, 138 128, 146 138" fill="none"
+        stroke="#5d6a76" stroke-width="3" opacity="0.9"/>
+
+  <!-- green port cluster -->
+  <circle cx="114" cy="158" r="13" fill="url(#glow)"/>
+  <circle cx="93"  cy="150" r="6"  fill="url(#glow)" opacity="0.9"/>
+  <circle cx="135" cy="150" r="6"  fill="url(#glow)" opacity="0.9"/>
+  <!-- glow bloom -->
+  <circle cx="114" cy="158" r="20" fill="#48f08b" opacity="0.18"/>
+
+  <!-- three preview tiles cascading bottom-right -->
+  <g stroke="#0a1826" stroke-width="3">
+    <rect x="158" y="150" width="42" height="28" rx="6" fill="url(#tile)" opacity="0.95"/>
+    <rect x="172" y="170" width="42" height="28" rx="6" fill="url(#tile)"/>
+    <rect x="186" y="190" width="42" height="28" rx="6" fill="url(#tile)"/>
+  </g>
+  <rect x="186" y="190" width="42" height="28" rx="6" fill="none"
+        stroke="#48f08b" stroke-width="4"/>
+</svg>
