@@ -74,8 +74,21 @@ python3 -c 'import gi; gi.require_version("GtkLayerShell","0.1")' 2>/dev/null \
 python3 -c 'import gi; gi.require_version("AyatanaAppIndicator3","0.1")' 2>/dev/null \
     || missing+=(libayatana-appindicator-gtk3)
 if [ "${#missing[@]}" -gt 0 ]; then
+    # The keys above are Fedora package names; Debian/Ubuntu names differ for the
+    # two GObject-introspection typelibs, so map them before printing.
+    declare -A DEB_NAME=(
+        [wmctrl]=wmctrl
+        [xdotool]=xdotool
+        [gtk-layer-shell]=gir1.2-gtklayershell-0.1
+        [libayatana-appindicator-gtk3]=gir1.2-ayatanaappindicator3-0.1
+    )
+    deb_pkgs=()
+    for pkg in "${missing[@]}"; do
+        deb_pkgs+=("${DEB_NAME[$pkg]:-$pkg}")
+    done
     say "Optional (recommended) packages not found: ${missing[*]}"
     say "  Fedora:  sudo dnf install ${missing[*]}"
+    say "  Ubuntu:  sudo apt install ${deb_pkgs[*]}"
 fi
 
 case ":$PATH:" in

@@ -42,7 +42,7 @@ if _WAYLAND_SESSION:
     else:
         print("[podsight] gtk-layer-shell not found — thumbnails may go under Fixed Window EVE.")
         print("[podsight]   Fedora:  sudo dnf install gtk-layer-shell")
-        print("[podsight]   Ubuntu:  sudo apt install gir1.2-gtk-layer-shell-0")
+        print("[podsight]   Ubuntu:  sudo apt install gir1.2-gtklayershell-0.1")
 
 import gi
 try:

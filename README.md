@@ -109,7 +109,7 @@ sudo apt install python3 python3-gi gir1.2-gtk-3.0 gir1.2-wnck-3.0
 sudo apt install wmctrl xdotool
 
 # Optional Wayland overlay support and system tray:
-sudo apt install gir1.2-gtk-layer-shell-0 gir1.2-ayatanaappindicator3-0.1
+sudo apt install gir1.2-gtklayershell-0.1 gir1.2-ayatanaappindicator3-0.1
 ```
 
 ### Arch Linux
